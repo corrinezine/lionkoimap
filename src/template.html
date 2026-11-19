@@ -1,0 +1,430 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>臻臻的新加坡美食攻略</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+  @font-face{font-family:"Nano";src:url({{FONT}}) format("woff2");font-display:block}
+  :root{
+    --band:#B5572A; --band-dark:#9E4620;
+    --paper:#F7EFE0; --ink:#3A2416; --ink-soft:#5A3F2C;
+    --star:#E59A24; --pill:#EEE2CA; --num:#A3916C; --line:#D9C9AC; --accent:#D98A2B;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{background:#E9E2D6;font-family:"Nano","Songti SC",serif;color:var(--ink);overflow:hidden;
+       display:grid;grid-template-columns:200px minmax(0,1fr) 250px}
+  .side{height:100vh;overflow:auto;padding:22px 16px;font-size:13.5px;line-height:1.65;color:#5a4a3a}
+  .side-l{border-right:1px solid #DDD2C0}
+  .side-r{border-left:1px solid #DDD2C0}
+  .side h1{font-size:19px;color:var(--ink);line-height:1.35;margin-bottom:18px}
+  .side h2{font-size:12px;color:#9a8670;letter-spacing:2px;margin:18px 0 8px;font-weight:normal}
+  .side button{font:inherit;border:0;border-radius:8px;padding:7px 10px;cursor:pointer;background:var(--pill);color:var(--ink);text-align:left}
+  .side button.on{background:var(--ink);color:#fff}
+  .vlist{display:flex;flex-direction:column;gap:6px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+  .grid2 button{text-align:center;padding:7px 0}
+  .side button.dl{background:var(--band);color:#fff;width:100%;text-align:center}
+  .side button.dl.ghost{background:var(--pill);color:var(--ink)}
+  .side .muted{font-size:12px;color:#9a8670}
+  .side ol{padding-left:1.2em}
+  .side li{margin-bottom:6px}
+  .side a{color:var(--band)}
+  .side b{color:var(--ink)}
+
+  /* ---------- 中间：海报轮播 ---------- */
+  .stage{position:relative;height:100vh;overflow:hidden}
+  .poster{width:900px;height:var(--H,1200px);position:absolute;top:0;left:50%;overflow:hidden;background:var(--paper);
+          transform-origin:top center;transition:transform .45s cubic-bezier(.2,.7,.2,1),opacity .45s,top .45s;box-shadow:0 10px 30px rgba(60,30,10,.18)}
+  .poster.side-p{opacity:.4;cursor:pointer}
+  .poster.side-p *{pointer-events:none}
+  .poster.far{opacity:0;pointer-events:none}
+  .poster.flat{transform:none!important;left:0;top:0!important;transition:none;box-shadow:none}
+  .nav{position:absolute;top:50%;z-index:5;width:40px;height:40px;margin-top:-20px;border:0;border-radius:50%;cursor:pointer;
+       background:rgba(255,255,255,.92);color:var(--ink);font-size:22px;line-height:40px;box-shadow:0 2px 8px rgba(0,0,0,.15)}
+  .nav.prev{left:12px}.nav.next{right:12px}
+  .nav[disabled]{opacity:.3;cursor:default}
+  .dots{position:absolute;left:0;right:0;bottom:8px;display:flex;gap:8px;justify-content:center;z-index:5}
+  .dots i{width:8px;height:8px;border-radius:4px;background:#CDBFA8;cursor:pointer;transition:width .3s}
+  .dots i.on{width:22px;background:var(--band)}
+
+  details.howto{display:none}
+  details.howto summary{cursor:pointer;font-size:12px;color:#9a8670;letter-spacing:2px;list-style:none}
+  details.howto summary::before{content:"▸ "}
+  details.howto[open] summary::before{content:"▾ "}
+  details.howto ol{margin-top:8px}
+  .mtop,.mbar,.sheet-head,.mask,.result{display:none}
+
+  /* ---------- 移动端 ---------- */
+  @media (max-width:900px){
+    html,body{height:100%}
+    body{display:flex;flex-direction:column;height:100dvh;overflow:hidden}
+    .side-l{display:none}
+    .mtop{display:flex;align-items:center;justify-content:space-between;flex:0 0 auto;
+          padding:calc(6px + env(safe-area-inset-top)) 16px 6px;font-size:16px;color:var(--ink)}
+    .mtop button{font:inherit;font-size:14px;border:0;background:transparent;color:var(--band);min-height:40px;padding:0 4px}
+    .stage{flex:1 1 auto;height:auto;min-height:0}
+    .nav{display:none}
+    .dots{bottom:6px}
+    .mbar{display:block;flex:0 0 auto;background:#fff;border-top:1px solid #E2D7C5;
+          padding:8px 12px calc(8px + env(safe-area-inset-bottom));box-shadow:0 -4px 16px rgba(60,30,10,.06)}
+    .mbar button{font:inherit;border:0;cursor:pointer;-webkit-tap-highlight-color:transparent}
+    .mtabs{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin-bottom:8px}
+    .mtabs::-webkit-scrollbar{display:none}
+    .mtabs button{flex:0 0 auto;min-height:36px;padding:0 16px;border-radius:18px;background:var(--pill);color:var(--ink);font-size:15px}
+    .mtabs button.on{background:var(--ink);color:#fff}
+    .mrow{display:flex;gap:10px;align-items:center}
+    .mratios{flex:1;display:flex;background:var(--pill);border-radius:10px;padding:3px}
+    .mratios button{flex:1;min-height:36px;border-radius:8px;background:transparent;color:var(--ink-soft);font-size:14px;font-family:Georgia,serif}
+    .mratios button.on{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+    .msave{flex:0 0 auto;min-height:42px;padding:0 18px;border-radius:12px;background:var(--band)!important;color:#fff;font-size:15px}
+    .mask{position:fixed;inset:0;background:rgba(30,15,5,.4);z-index:40;opacity:0;pointer-events:none;transition:opacity .25s;display:block}
+    .mask.on{opacity:1;pointer-events:auto}
+    .side-r{position:fixed;left:0;right:0;bottom:0;z-index:50;height:auto;max-height:78dvh;background:#fff;border:0;
+            border-radius:16px 16px 0 0;padding:0 18px calc(18px + env(safe-area-inset-bottom));font-size:14.5px;
+            transform:translateY(105%);transition:transform .3s cubic-bezier(.2,.7,.2,1)}
+    .side-r.open{transform:none}
+    .sheet-head{display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:#fff;padding:14px 0 6px;z-index:1}
+    .sheet-head b{font-size:16px}
+    .sheet-head button{font:inherit;border:0;background:transparent;color:var(--band);font-size:15px;min-height:36px}
+    .result{position:fixed;inset:0;z-index:60;background:rgba(20,10,4,.88);display:none;align-items:center;justify-content:center;
+            padding:calc(16px + env(safe-area-inset-top)) 16px calc(16px + env(safe-area-inset-bottom))}
+    .result.on{display:flex}
+    .result-box{width:100%;max-height:100%;display:flex;flex-direction:column;align-items:center;gap:12px}
+    .result-tip{color:#fff;font-size:15px}
+    .result img{max-width:100%;max-height:calc(100dvh - 170px);border-radius:6px;-webkit-touch-callout:default}
+    .result-btns{display:flex;gap:10px}
+    .result-btns button{font:inherit;border:0;border-radius:10px;min-height:42px;padding:0 16px;background:rgba(255,255,255,.16);color:#fff;font-size:14.5px}
+    .result-btns button.pri{background:var(--band)}
+  }
+
+  .band-top{position:absolute;left:0;top:0;width:900px;height:96px;background:var(--band)}
+  .wave-top{position:absolute;left:0;top:94px;width:900px;height:22px}
+  .band-bot{position:absolute;left:0;bottom:0;width:900px;height:26px;background:var(--band)}
+  .wave-bot{position:absolute;left:0;bottom:24px;width:900px;height:18px}
+  .logo{position:absolute;left:395px;top:6px;width:110px;height:84px;background-size:contain;background-repeat:no-repeat;background-position:center}
+  .tag{position:absolute;color:#FBE7BE;font-family:Georgia,serif;font-weight:bold;letter-spacing:.5px}
+  .tag.l1{left:268px;top:22px;font-size:15px;transform:rotate(-12deg)}
+  .tag.l2{left:262px;top:56px;font-size:16px}
+  .tag.r1{left:562px;top:20px;font-size:16px;transform:rotate(10deg)}
+  .tag.r2{left:566px;top:56px;font-size:16px}
+
+  .title{position:absolute;left:0;top:116px;width:900px;text-align:center;font-weight:bold;white-space:nowrap}
+  .title .who{font-size:44px;color:var(--band)}
+  .title .de{font-size:28px;color:var(--ink)}
+  .title .main{font-size:52px;color:var(--ink);letter-spacing:4px}
+  .underline{position:absolute;left:345px;top:184px;width:360px;height:18px}
+
+  .section{position:absolute;left:52px;top:210px;width:796px;height:72px;display:flex;align-items:center}
+  .section .name{font-size:36px;font-weight:bold;letter-spacing:4px;padding:0 20px;flex:0 0 auto;
+                 border-left:2px solid var(--band);border-right:2px solid var(--band);line-height:40px;white-space:nowrap}
+  .section .intro{margin-left:30px;font-size:15.5px;line-height:1.7;color:var(--ink-soft)}
+
+  .list{position:absolute;left:52px;top:286px;width:796px;height:calc(var(--H,1200px) - 432px);display:flex;flex-direction:column}
+  .item{flex:1;display:flex;gap:28px;align-items:center;border-bottom:1.5px dashed var(--line)}
+  .item:last-child{border-bottom:0}
+  .phwrap{flex:0 0 var(--ph-w,236px);position:relative}
+  .ph{width:var(--ph-w,236px);height:var(--ph-h,160px);border-radius:14px;background-color:#EADBBE;background-size:cover;background-position:center;
+      position:relative;cursor:pointer;box-shadow:0 2px 6px rgba(80,40,10,.14)}
+  .ph.illo{background-size:auto 86%;background-repeat:no-repeat;background-color:#C9662E}
+  .ph.active{outline:3px solid var(--accent);outline-offset:3px}
+  .credit{position:absolute;right:8px;bottom:6px;font-size:9px;color:rgba(255,255,255,.92);font-family:Arial,sans-serif;
+          text-shadow:0 0 3px rgba(0,0,0,.8)}
+  .tip{position:absolute;left:8px;bottom:8px;font-size:12px;background:rgba(255,255,255,.88);color:#6b4a2e;border-radius:6px;padding:2px 8px}
+  .body{flex:1;min-width:0}
+  .head{display:flex;align-items:center;height:40px}
+  .num{display:inline-block;width:50px;height:30px;line-height:30px;border-radius:15px;background:var(--num);color:#FBF3E2;
+       text-align:center;font-size:19px;margin-right:12px;flex:0 0 auto}
+  .shop{font-size:31px;font-weight:bold;letter-spacing:2px;white-space:nowrap}
+  .stars{margin-left:auto;color:var(--star);font-size:22px;letter-spacing:2px;font-family:"Apple Symbols","Segoe UI Symbol",sans-serif;white-space:nowrap}
+  .stars .off{color:#D9C3A0}
+  .want{margin-left:auto;font-size:14px;color:var(--band);border:1.5px solid var(--band);border-radius:12px;padding:1px 10px;white-space:nowrap}
+  .price{margin-left:14px;font-size:20px;color:var(--ink-soft);white-space:nowrap;font-family:Georgia,serif}
+  .en{margin:0 0 2px 62px;font-size:14.5px;color:#8A6F55;letter-spacing:.3px}
+  .desc{margin-top:4px;font-size:16px;line-height:1.66;color:var(--ink)}
+  .locrow{margin-top:7px;display:flex;align-items:center;gap:8px}
+  .loc{display:inline-block;background:var(--pill);border-radius:16px;padding:4px 14px 4px 10px;font-size:14.5px;color:var(--ink-soft);white-space:nowrap}
+  .loc .pin{width:13px;height:17px;vertical-align:-3px;margin-right:8px}
+  .loc .addr{margin-left:12px}
+  .map{font-size:12.5px;color:var(--band);text-decoration:none;border:1px solid var(--band);border-radius:10px;padding:1px 8px;white-space:nowrap}
+  .map:hover{background:var(--band);color:#fff}
+  .compact .desc{line-height:1.5;margin-top:2px}
+  .compact .locrow{margin-top:4px}
+  .compact .head{height:36px}
+
+  .footer{position:absolute;left:52px;bottom:42px;width:796px;height:100px;border-top:1.5px dashed var(--line);
+          display:flex;align-items:center;padding-top:14px}
+  .footer .book{font-size:21px;line-height:1.6;color:var(--band-dark);letter-spacing:1px;width:330px}
+  .footer .vbar{width:2px;height:56px;background:var(--band);margin:0 36px 0 10px}
+  .qr{width:76px;height:76px;border-radius:6px;border:1.5px dashed #BFA987;background-color:#fff;background-size:cover;
+      background-position:center;display:flex;align-items:center;justify-content:center;font-size:12px;color:#a08b6b;cursor:pointer}
+  .qr.filled{border:0}
+  .qr.filled span{display:none}
+  .qr.active{outline:3px solid var(--accent);outline-offset:3px}
+  .footer .scan{margin-left:22px;font-size:17px;color:var(--band-dark);letter-spacing:1px}
+
+  [contenteditable]:focus{outline:1.5px dashed var(--accent);outline-offset:2px}
+  /* 浏览态 / 编辑态 */
+  body:not(.editing) .tip{display:none}
+  body:not(.editing) .ph,body:not(.editing) .qr{cursor:default}
+  body.editing .poster:not(.side-p) [contenteditable]{outline:1px dashed rgba(217,138,43,.45);outline-offset:2px;cursor:text}
+  body.editing .poster:not(.side-p) [contenteditable]:focus{outline:1.5px dashed var(--accent);background:rgba(255,255,255,.5)}
+  body.editing .poster:not(.side-p) .ph,body.editing .poster:not(.side-p) .qr{cursor:pointer;outline:2px dashed rgba(217,138,43,.6);outline-offset:3px}
+  .exporting [contenteditable],.exporting .ph,.exporting .qr{outline:0!important}
+  .edit-tag{position:absolute;top:10px;left:50%;transform:translateX(-50%);z-index:6;display:none;white-space:nowrap;
+            background:var(--ink);color:#fff;font-size:13px;border-radius:16px;padding:5px 14px;box-shadow:0 2px 8px rgba(0,0,0,.15)}
+  body.editing .edit-tag{display:block}
+  .side button.edit{width:100%;text-align:center;background:var(--ink);color:#fff;margin-bottom:4px}
+  body.editing .side button.edit{background:var(--accent)}
+  .exporting .tip,.exporting .map,.exporting .qr:not(.filled) span{display:none}
+  .exporting .active{outline:0}
+</style>
+</head>
+<body>
+
+<aside class="side side-l">
+  <h1>臻臻的<br>新加坡美食攻略</h1>
+  <button class="edit" id="editBtn">✎ 编辑内容</button>
+  <h2>篇目</h2><div class="vlist" id="tabs"></div>
+  <h2>比例</h2><div class="grid2" id="ratios"></div>
+  <h2>导出</h2>
+  <div class="vlist"><button class="dl" id="dl1">下载图片</button><button class="dl ghost" id="dl2">高清</button></div>
+</aside>
+
+<header class="mtop"><b>臻臻的新加坡美食攻略</b><div><button id="mEditBtn">编辑</button><button id="infoOpen">说明</button></div></header>
+<main class="stage" id="stage"><div id="scaler"></div>
+  <div class="edit-tag" id="editTag">编辑中 · 点文字改字，点图片换图</div>
+  <button class="nav prev" id="prev" aria-label="上一篇">‹</button><button class="nav next" id="next" aria-label="下一篇">›</button>
+  <div class="dots" id="dots"></div></main>
+
+<nav class="mbar">
+  <div class="mtabs" id="mtabs"></div>
+  <div class="mrow"><div class="mratios" id="mratios"></div><button class="msave" id="msave">保存图片</button></div>
+</nav>
+<div class="result" id="result"><div class="result-box">
+  <p class="result-tip">长按图片「存储到相册」</p><img id="resultImg" alt="导出的攻略图片">
+  <div class="result-btns"><button id="rHd">生成高清版</button><button id="rDl">下载文件</button><button id="rClose" class="pri">完成</button></div>
+</div></div>
+<div class="mask" id="mask"></div>
+<aside class="side side-r" id="info">
+  <div class="sheet-head"><b>说明</b><button id="infoClose">完成</button></div>
+  <details class="howto"><summary>怎么用</summary>
+  <ol>
+    <li>切换篇：← → 键、两侧箭头、点旁边的篇；手机上左右滑动或点底部篇名。</li>
+    <li>换图：电脑上点一下图片框或二维码框，再按 <b>⌘V</b> 粘贴，也可以拖入或双击选文件；手机上点图片直接从相册选。</li>
+    <li>文字直接点击修改。</li>
+    <li>「地图 ↗」打开谷歌地图，导出时自动隐藏。</li>
+    <li>手机上点「保存图片」，生成后长按图片存到相册。</li>
+  </ol></details>
+  <h2>信息核对与改动</h2>
+  <ul>
+    <li><b>肉骨茶篇</b>：开头改为“吃过 / 想吃的 4 家”；梁记巴生“没吃过”故不打星，改为「想吃」标签；发起人原文“只有一家店”不准确（1998 年马里士他创始店，另有分店），改为“老店在马里士他”。</li>
+    <li><b>叻沙篇</b>：结霜桥叻沙地址原写“27 Jalan Besar, #01-10 / 武吉士”，核对后应为 <b>27 Jalan Berseh, #01-100, Singapore 200027</b>（惹兰勿刹 Jalan Berseh 熟食中心内），区域改为惹兰勿刹。参考图里 02、03 用的是同一张照片，已替换。注意：芳林熟食中心那家“Sungei Road Trishaw Laksa”是另一家，没有关系。</li>
+    <li>加东叻沙：51 East Coast Rd 那家的店名是 <b>328 Katong Laksa</b>，英文名已补全。</li>
+    <li>已核对：发起人 347 Balestier Rd, Singapore 329777；梁记 251 Geylang Rd, Singapore 389309；328 加东叻沙 51 East Coast Rd, Singapore 428770。营业时间各来源说法不一，没有写进图里。</li>
+    <li><b>默认图片</b>全部是可商用的实拍图（来自 Wikimedia Commons / Flickr，CC 授权，要求署名，署名已经印在图角）：
+      <a href="https://commons.wikimedia.org/wiki/File:Song_Fa_Bak_Kut_Teh,_New_Bridge_Rd,_Singapore_(2023)_06.jpg" target="_blank">松发</a>（Chainwit., CC BY 4.0，新桥路店）、
+      <a href="https://www.flickr.com/photos/102748040@N03/14461357413" target="_blank">发起人</a>（Jnzl's Photos, CC BY 2.0，马里士他老店的名人墙）、
+      <a href="https://www.flickr.com/photos/51035756584@N01/25805701162" target="_blank">黄亚细</a>（Kaeru, CC BY 2.0）、
+      <a href="https://www.flickr.com/photos/28144035@N05/2866718435" target="_blank">梁记</a>（Hyoh, CC BY-SA 2.0，2008 年拍，分店不确定）、
+      <a href="https://commons.wikimedia.org/wiki/File:328_Katong_Laksa%27s_set_A_with_Otah_at_Queensway_Alexandra_(2025)_-_img_01.jpg" target="_blank">328 加东叻沙</a>（Chainwit., CC BY 4.0，女皇镇分店）、
+      <a href="https://www.flickr.com/photos/51035756584@N01/21544341545" target="_blank">结霜桥</a>（Kaeru, CC BY 2.0）、
+      <a href="https://www.flickr.com/photos/37325040@N07/3958855809" target="_blank">自选叻沙</a>（Kojach, CC BY 2.0）。
+      照片都比较旧，粘贴你自己拍的就会替换掉，署名也会一起去掉。</li>
+  </ul>
+  <p class="muted">以上说明不会出现在导出的图片里。</p>
+</aside>
+
+<script>
+const IMG={{IMAGES}};
+const PIN='<img class="pin" alt="" src="{{PIN}}">';
+const gmap=q=>'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(q);
+
+const PAGES=[
+ {key:'bkt',tab:'肉骨茶篇',name:'肉骨茶篇',price:'~ $$',
+  intro:'其实就是胡椒排骨汤啦！整理了我在新加坡吃过 / 想吃的 4 家，<br>各有特色，按个人喜好和体验分享给你参考～',
+  items:[
+   {cn:'松发肉骨茶',en:'Song Fa Bak Kut Teh',stars:5,img:'songfa',credit:'Photo: Chainwit. / CC BY 4.0',
+    desc:'最经典也最容易吃到的应该就是这家。基本我带朋友也会去这里。汤很浓厚，肉有点硬。最好错峰去，经常需要排队。可以尝尝！记得点油条～',
+    area:'全岛有连锁，找最近的就行！',map:'Song Fa Bak Kut Teh Singapore'},
+   {cn:'发起人肉骨茶',en:'Founder Bak Kut Teh',stars:5,img:'founder',credit:'Photo: Jnzl\'s Photos / CC BY 2.0',
+    desc:'小众经典款，老店在马里士他，不在很中心的地方。店面老老的，里面有很多名人合照。我蛮喜欢这家的！',
+    area:'马里士他 Balestier',addr:'347 Balestier Rd, Singapore 329777',map:'Founder Bak Kut Teh, 347 Balestier Rd, Singapore 329777'},
+   {cn:'黄亚细',en:'Ng Ah Sio Bak Kut Teh',stars:3,img:'ngahsio',credit:'Photo: Kaeru / CC BY 2.0',
+    desc:'胡椒味比较重！我个人觉得就是可以随缘吃吃～',
+    area:'有几家连锁，找最近的就行！',map:'Ng Ah Sio Bak Kut Teh Singapore'},
+   {cn:'梁记巴生',en:'Leong Kee (Klang) Bak Kut Teh',stars:null,img:'leongkee',credit:'Photo: Hyoh / CC BY-SA 2.0',
+    desc:'没吃过这家，但知道是新加坡少有的比较马来西亚式的肉骨茶（巴生是马来西亚的地名，算是那里的肉骨茶流派）。比较偏药材底而不是胡椒底。还有“干肉骨茶”，可以试试看！',
+    area:'东部芽笼 Geylang',addr:'251 Geylang Rd, Singapore 389309',map:'Leong Kee (Klang) Bak Kut Teh, 251 Geylang Rd, Singapore 389309'}
+  ]},
+ {key:'laksa',tab:'叻沙篇',name:'叻沙篇',price:'~ $',
+  intro:'说到新加坡的国民美食，叻沙（Laksa）一定榜上有名。<br>椰香浓郁、微辣鲜香、汤底丰富，这里整理了我在新加坡<br>吃过的几家，供大家参考～',
+  items:[
+   {cn:'加东叻沙',en:'328 Katong Laksa',stars:5,img:'katong',credit:'Photo: Chainwit. / CC BY 4.0',
+    desc:'我最常去的一家！很正宗，椰浆汤底很浓郁，配料有虾、鱼饼等，吃完还会回味中。位于加东一带，是本地人推荐的老字号。环境简单，但味道很值得。',
+    area:'东部加东 Katong',addr:'51 East Coast Rd, Singapore 428770',map:'328 Katong Laksa, 51 East Coast Rd, Singapore 428770'},
+   {cn:'结霜桥叻沙',en:'Sungei Road Laksa',stars:3,img:'sungei',credit:'Photo: Kaeru / CC BY 2.0',
+    desc:'非常有名的一家店，用炭火煮的叻沙，汤底非常浓郁，带一些烟火气。十几年没怎么变的味道，才来的时候确实很惊艳，后来吃多了会稍微平淡了一些。',
+    area:'惹兰勿刹 Jalan Besar',addr:'27 Jalan Berseh, #01-100, Singapore 200027',map:'Sungei Road Laksa, 27 Jalan Berseh, #01-100, Singapore 200027'},
+   {cn:'自选叻沙',en:'',stars:3,img:'diylaksa',credit:'Photo: Kojach / CC BY 2.0',
+    desc:'有些食阁会有自选式的叻沙区，通常可以选择配料（如豆腐卜、鱼丸、虾等），再由摊位帮你煮。自己可以灵活搭配，价格实惠，适合想快速解决一餐、又想吃到叻沙的朋友。',
+    area:'各大食阁（Food Court）通常可见，无固定地址',map:null}
+  ]}
+];
+
+const scaler=document.getElementById('scaler'),tabs=document.getElementById('tabs');
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');
+function starsHtml(n,price){
+  const p='<span class="price">'+price+'</span>';
+  if(n==null)return '<span class="want">想吃 · 未打分</span>'+p;
+  return '<span class="stars">'+'★'.repeat(n)+(n<5?'<span class="off">'+'★'.repeat(5-n)+'</span>':'')+'</span>'+p;
+}
+function render(pg){
+  const phH=pg.items.length>=4?160:200;
+  const items=pg.items.map((it,i)=>{
+    const im=IMG[it.img],illo=it.img.startsWith('illo');
+    return `<div class="item">
+      <div class="phwrap"><div class="ph${illo?' illo':''}" style="background-image:url(${im})">${illo?'<span class="tip">点选后 ⌘V 粘贴图片</span>':''}${it.credit?'<span class="credit">'+esc(it.credit)+'</span>':''}</div></div>
+      <div class="body">
+        <div class="head"><span class="num">${String(i+1).padStart(2,'0')}</span><span class="shop" contenteditable="true">${esc(it.cn)}</span>${starsHtml(it.stars,pg.price)}</div>
+        ${it.en?'<div class="en" contenteditable="true">'+esc(it.en)+'</div>':''}
+        <div class="desc" contenteditable="true">${esc(it.desc)}</div>
+        <div class="locrow"><span class="loc">${PIN}<span contenteditable="true">${esc(it.area)}${it.addr?'<span class="addr">'+esc(it.addr)+'</span>':''}</span></span>
+          ${it.map?'<a class="map" target="_blank" rel="noopener" href="'+gmap(it.map)+'">地图 ↗</a>':''}</div>
+      </div></div>`;}).join('');
+  return `<div class="poster" data-key="${pg.key}" data-name="${pg.name}" style="--ph-h:${phH}px">
+  <div class="band-top"></div>{{WAVE_TOP}}
+  <div class="logo" style="background-image:url(${IMG.logo})"></div>
+  <div class="tag l1">WELCOME!</div><div class="tag l2">Singapore</div><div class="tag r1">Zayton</div><div class="tag r2">lionkoi</div>
+  <div class="title" contenteditable="true"><span class="who">臻臻</span><span class="de"> 的 </span><span class="main">新加坡美食攻略</span></div>
+  {{UNDERLINE}}
+  <div class="section"><div class="name" contenteditable="true">${pg.name}</div><div class="intro" contenteditable="true">${pg.intro}</div></div>
+  <div class="list">${items}</div>
+  <div class="footer"><div class="book" contenteditable="true">狮鲤双城游戏地图：<br>新加坡与泉州探索手册</div><div class="vbar"></div>
+    <div class="qr filled" style="background-image:url(${IMG.qr})"><span>粘贴二维码</span></div><div class="scan" contenteditable="true">完整专栏购买请扫描 ▶</div></div>
+  {{WAVE_BOT}}<div class="band-bot"></div></div>`;
+}
+scaler.innerHTML=PAGES.map(render).join('');
+const posters=[...document.querySelectorAll('.poster')];
+let cur=0;try{cur=Math.max(0,PAGES.findIndex(p=>p.key===localStorage.getItem('guide-tab')))}catch(e){}
+const stage=document.getElementById('stage'),dots=document.getElementById('dots');
+const prevB=document.getElementById('prev'),nextB=document.getElementById('next');
+// 比例：宽度固定 900，按比例算高度；列表和图片随高度自适应
+const RATIOS=[['3:4',1200],['2:3',1350],['9:16',1600],['4:5',1125]];
+let PH=1200;
+function applyRatio(h){PH=h;
+  posters.forEach((p,j)=>{const n=PAGES[j].items.length, itemH=(h-432)/n;
+    const w=itemH>=270?300:236, ph=Math.max(130,Math.min(itemH-34,w===300?320:200));
+    p.style.setProperty('--H',h+'px');p.classList.toggle('compact',itemH<185);p.style.setProperty('--ph-w',w+'px');p.style.setProperty('--ph-h',ph+'px');});
+  document.querySelectorAll('#ratios button,#mratios button').forEach(b=>b.classList.toggle('on',+b.dataset.h===h));
+  document.getElementById('dl1').textContent='下载图片 1080×'+Math.round(h*1.2);
+  document.getElementById('dl2').textContent='高清 2160×'+Math.round(h*2.4);
+  try{localStorage.setItem('guide-ratio',h)}catch(e){}
+  layout();}
+RATIOS.forEach(([n,h])=>['ratios','mratios'].forEach(id=>{const b=document.createElement('button');b.textContent=n;b.dataset.h=h;b.onclick=()=>applyRatio(h);document.getElementById(id).appendChild(b);}));
+// 轮播布局：中间一张撑满高度，左右露出相邻的篇
+function layout(){
+  const mobile=innerWidth<=900, W=stage.clientWidth;
+  const s=Math.min((stage.clientHeight-(mobile?30:48))/PH,W*(mobile?0.86:0.7)/900);
+  const ss=s*0.78, H=stage.clientHeight, gap=mobile?12:28, off=900*s/2+gap+900*ss/2;
+  posters.forEach((p,j)=>{const d=j-cur, k=d===0?s:ss;
+    const x=d===0?0:Math.sign(d)*(off+(Math.abs(d)-1)*(900*ss+gap));
+    p.style.top=((H-8-PH*k)/2)+'px';
+    p.style.transform='translateX(calc(-50% + '+x+'px)) scale('+k+')';
+    p.classList.toggle('side-p',d!==0);p.classList.toggle('far',Math.abs(d)>1);});
+}
+function show(i){cur=Math.max(0,Math.min(posters.length-1,i));setActive&&active&&setActive(null);layout();
+  [...tabs.children,...mtabs.children].forEach(b=>b.classList.toggle('on',+b.dataset.i===cur));[...dots.children].forEach((b,j)=>b.classList.toggle('on',j===cur));
+  prevB.disabled=cur===0;nextB.disabled=cur===posters.length-1;
+  try{localStorage.setItem('guide-tab',PAGES[cur].key)}catch(e){}}
+const mtabs=document.getElementById('mtabs');
+PAGES.forEach((p,i)=>{[tabs,mtabs].forEach(c=>{const b=document.createElement('button');b.textContent=p.tab;b.dataset.i=i;b.onclick=()=>show(i);c.appendChild(b);});
+  const d=document.createElement('i');d.title=p.tab;d.onclick=()=>show(i);dots.appendChild(d);});
+posters.forEach((p,j)=>p.addEventListener('click',e=>{if(j!==cur){e.stopPropagation();show(j);}},true));
+prevB.onclick=()=>show(cur-1);nextB.onclick=()=>show(cur+1);
+addEventListener('keydown',e=>{if(e.target.closest&&e.target.closest('[contenteditable],input'))return;
+  if(e.key==='ArrowLeft')show(cur-1);if(e.key==='ArrowRight')show(cur+1);});
+let tx=null;stage.addEventListener('touchstart',e=>{tx=e.touches[0].clientX},{passive:true});
+stage.addEventListener('touchend',e=>{if(tx==null)return;const dx=e.changedTouches[0].clientX-tx;tx=null;if(Math.abs(dx)>50)show(cur+(dx<0?1:-1));});
+addEventListener('resize',layout);
+let active=null;let r0=1200;try{r0=+localStorage.getItem('guide-ratio')||1200}catch(e){}
+show(cur);applyRatio(RATIOS.some(x=>x[1]===r0)?r0:1200);
+
+// 编辑态：默认只浏览，点「编辑」才能改字、换图
+let editing=false;
+const editables=[...document.querySelectorAll('[contenteditable]')];
+editables.forEach(n=>n.removeAttribute('contenteditable'));
+const editBtn=document.getElementById('editBtn'),mEditBtn=document.getElementById('mEditBtn');
+function setEdit(on){editing=on;document.body.classList.toggle('editing',on);
+  editables.forEach(n=>on?n.setAttribute('contenteditable','true'):n.removeAttribute('contenteditable'));
+  if(!on){document.activeElement&&document.activeElement.blur();setActive(null);}
+  editBtn.textContent=on?'✓ 完成编辑':'✎ 编辑内容';mEditBtn.textContent=on?'完成':'编辑';}
+editBtn.onclick=()=>setEdit(!editing);mEditBtn.onclick=()=>setEdit(!editing);
+addEventListener('keydown',e=>{if(e.key==='Escape'&&editing)setEdit(false);});
+
+// 图片槽：点选 + 粘贴 / 拖入 / 双击
+const slots=[...document.querySelectorAll('.ph,.qr')];
+const coarse=matchMedia('(pointer:coarse)').matches;
+function pick(el){const i=document.createElement('input');i.type='file';i.accept='image/*';i.onchange=()=>fill(el,i.files[0]);i.click();}
+if(coarse)document.querySelectorAll('.tip').forEach(t=>t.textContent='点击换图');
+function setActive(el){slots.forEach(s=>s.classList.remove('active'));active=el;if(el)el.classList.add('active');}
+function fill(el,file){
+  if(!file||!file.type.startsWith('image/'))return;
+  const r=new FileReader();
+  r.onload=()=>{el.style.backgroundImage='url('+r.result+')';
+    if(el.classList.contains('qr'))el.classList.add('filled');
+    else{el.classList.remove('illo');el.querySelectorAll('.tip,.credit').forEach(n=>n.remove());}};
+  r.readAsDataURL(file);
+}
+slots.forEach(el=>{
+  el.addEventListener('click',e=>{if(!editing)return;e.stopPropagation();if(coarse){pick(el);return;}setActive(el);});
+  el.addEventListener('dblclick',()=>{if(editing)pick(el);});
+  el.addEventListener('dragover',e=>e.preventDefault());
+  el.addEventListener('drop',e=>{e.preventDefault();if(!editing)return;fill(el,e.dataTransfer.files[0]);setActive(el);});
+});
+document.addEventListener('click',()=>setActive(null));
+document.addEventListener('paste',e=>{
+  const items=[...((e.clipboardData||{}).items||[])];
+  const img=items.find(i=>i.type.startsWith('image/'));
+  if(img&&active&&editing){e.preventDefault();fill(active,img.getAsFile());return;}
+  if(e.target.closest&&e.target.closest('[contenteditable]')){e.preventDefault();
+    document.execCommand('insertText',false,e.clipboardData.getData('text/plain'));}
+});
+
+// 导出
+async function renderPng(scale){
+  const poster=posters[cur];
+  setActive(null);document.activeElement&&document.activeElement.blur();
+  poster.classList.add('exporting','flat');
+  try{
+    await document.fonts.ready;
+    const c=await html2canvas(poster,{scale,useCORS:true,backgroundColor:null,width:900,height:PH,windowWidth:1000,windowHeight:PH+100});
+    return {canvas:c,name:'新加坡美食攻略-'+poster.dataset.name+'-'+c.width+'x'+c.height+'.png'};
+  }finally{poster.classList.remove('exporting','flat');}
+}
+function download(c,name){const a=document.createElement('a');a.download=name;a.href=c.toDataURL('image/png');a.click();}
+async function busy(btn,fn){const old=btn.textContent;btn.textContent='生成中…';btn.disabled=true;
+  try{await fn();}catch(err){alert('导出失败：'+err.message);}finally{btn.textContent=old;btn.disabled=false;}}
+document.getElementById('dl1').onclick=e=>busy(e.currentTarget,async()=>{const r=await renderPng(1.2);download(r.canvas,r.name);});
+document.getElementById('dl2').onclick=e=>busy(e.currentTarget,async()=>{const r=await renderPng(2.4);download(r.canvas,r.name);});
+
+// 移动端：生成后全屏预览，长按存相册
+const result=document.getElementById('result'),resultImg=document.getElementById('resultImg');let last=null;
+async function showResult(scale){const r=await renderPng(scale);last=r;
+  resultImg.src=r.canvas.toDataURL('image/png');result.classList.add('on');}
+document.getElementById('msave').onclick=e=>busy(e.currentTarget,()=>showResult(1.2));
+document.getElementById('rHd').onclick=e=>busy(e.currentTarget,()=>showResult(2.4));
+document.getElementById('rDl').onclick=()=>last&&download(last.canvas,last.name);
+document.getElementById('rClose').onclick=()=>result.classList.remove('on');
+
+// 移动端：说明抽屉
+const info=document.getElementById('info'),mask=document.getElementById('mask');
+function sheet(on){info.classList.toggle('open',on);mask.classList.toggle('on',on);}
+document.getElementById('infoOpen').onclick=()=>sheet(true);
+document.getElementById('infoClose').onclick=()=>sheet(false);
+mask.onclick=()=>sheet(false);
+</script>
+</body>
+</html>
